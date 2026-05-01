@@ -336,8 +336,8 @@ export default function Contact() {
               </p>
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {[
-                  { label: "GitHub",   href: "https://github.com" },
-                  { label: "LinkedIn", href: "https://linkedin.com" },
+                  { label: "GitHub",   href: "https://github.com/aabeleldo" },
+                  { label: "LinkedIn", href: "https://www.linkedin.com/in/aabel-eldo-0335b6384/" },
                 ].map(s => (
                   <a key={s.label} href={s.href} target="_blank" rel="noreferrer" className="social-link">
                     {s.label}
