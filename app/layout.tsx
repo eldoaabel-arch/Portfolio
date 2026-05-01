@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Aabel Eldo — Full Stack Engineer",
+  title: "Aabel Eldo",
   description: "Web developer based in St. Thomas, ON. Building clean, fast websites for local businesses across Southern Ontario.",
 };
 
