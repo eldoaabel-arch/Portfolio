@@ -81,6 +81,7 @@ export default function Engineering() {
 
   return (
     <section
+      id="engineering"
       ref={ref}
       style={{
         background: "#05080f",
