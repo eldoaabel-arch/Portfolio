@@ -3,38 +3,59 @@
 import { useEffect, useRef, useState } from "react";
 
 const LINKS = [
-  { label: "Home",     href: "#home" },
-  { label: "Work",     href: "#work" },
-  { label: "Services", href: "#services" },
-  { label: "About",    href: "#about" },
-  { label: "Contact",  href: "#contact" },
+  { label: "Home",        href: "#home" },
+  { label: "Work",        href: "#work" },
+  { label: "Engineering", href: "#engineering" },
+  { label: "Services",    href: "#services" },
+  { label: "About",       href: "#about" },
+  { label: "Contact",     href: "#contact" },
 ];
 
 export default function Navbar() {
   const [visible, setVisible] = useState(false);
   const [active, setActive] = useState("Home");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [pillReady, setPillReady] = useState(false);
   const pillRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
+  // Show/hide navbar on scroll
   useEffect(() => {
     const onScroll = () => setVisible(window.scrollY > 40);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Move pill to active item — suppress transition on first paint
   useEffect(() => {
     const el = itemRefs.current[active];
     const nav = navRef.current;
     const pill = pillRef.current;
     if (!el || !nav || !pill) return;
+
     const navRect = nav.getBoundingClientRect();
     const elRect = el.getBoundingClientRect();
-    pill.style.width = `${elRect.width}px`;
-    pill.style.left  = `${elRect.left - navRect.left}px`;
-  }, [active, visible]);
 
+    if (!pillReady) {
+      // Set position instantly (no transition) on first render
+      pill.style.transition = "none";
+      pill.style.width = `${elRect.width}px`;
+      pill.style.left  = `${elRect.left - navRect.left}px`;
+      // Re-enable transition after a frame
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          pill.style.transition = "";
+          setPillReady(true);
+        });
+      });
+    } else {
+      pill.style.width = `${elRect.width}px`;
+      pill.style.left  = `${elRect.left - navRect.left}px`;
+    }
+  }, [active, visible, pillReady]);
+
+  // Track active section on scroll
   useEffect(() => {
     const onScroll = () => {
       for (const link of [...LINKS].reverse()) {
