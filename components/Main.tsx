@@ -23,7 +23,8 @@ export default function Main() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    document.body.style.cursor = "none";
+    const isTouch = window.matchMedia("(pointer: coarse)").matches;
+    if (!isTouch) document.body.style.cursor = "none";
     return () => { document.body.style.cursor = ""; };
   }, []);
 
@@ -156,33 +157,51 @@ export default function Main() {
   }, []);
 
   useEffect(() => {
-    const move = (e: MouseEvent) => {
+    const isTouch = window.matchMedia("(pointer: coarse)").matches;
+
+    const handleMouseMove = (e: MouseEvent) => {
       targetRef.current = { x: e.clientX, y: e.clientY };
       mousePos.current = { x: e.clientX, y: e.clientY };
     };
-    document.addEventListener("mousemove", move);
+
+    const handleTouchMove = (e: TouchEvent) => {
+      const t = e.touches[0];
+      mousePos.current = { x: t.clientX, y: t.clientY };
+      targetRef.current = { x: t.clientX, y: t.clientY };
+    };
+
+    const handleTouchEnd = () => {
+      mousePos.current = { x: -9999, y: -9999 };
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("touchmove", handleTouchMove, { passive: true });
+    document.addEventListener("touchend", handleTouchEnd);
 
     let rafId: number;
-    const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-
-    const tick = () => {
-      posRef.current.x = lerp(posRef.current.x, targetRef.current.x, 0.1);
-      posRef.current.y = lerp(posRef.current.y, targetRef.current.y, 0.1);
-      if (cursorRing.current) {
-        cursorRing.current.style.left = `${posRef.current.x - 20}px`;
-        cursorRing.current.style.top  = `${posRef.current.y - 20}px`;
-      }
-      if (cursorDot.current) {
-        cursorDot.current.style.left = `${targetRef.current.x - 3}px`;
-        cursorDot.current.style.top  = `${targetRef.current.y - 3}px`;
-      }
-      rafId = requestAnimationFrame(tick);
-    };
-    tick();
+    if (!isTouch) {
+      const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+      const tick = () => {
+        posRef.current.x = lerp(posRef.current.x, targetRef.current.x, 0.1);
+        posRef.current.y = lerp(posRef.current.y, targetRef.current.y, 0.1);
+        if (cursorRing.current) {
+          cursorRing.current.style.left = `${posRef.current.x - 20}px`;
+          cursorRing.current.style.top  = `${posRef.current.y - 20}px`;
+        }
+        if (cursorDot.current) {
+          cursorDot.current.style.left = `${targetRef.current.x - 3}px`;
+          cursorDot.current.style.top  = `${targetRef.current.y - 3}px`;
+        }
+        rafId = requestAnimationFrame(tick);
+      };
+      tick();
+    }
 
     return () => {
-      document.removeEventListener("mousemove", move);
-      cancelAnimationFrame(rafId);
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchend", handleTouchEnd);
+      if (rafId) cancelAnimationFrame(rafId);
     };
   }, []);
 
@@ -283,12 +302,16 @@ export default function Main() {
             font-family: 'Share Tech Mono', monospace;
             font-size: 12px; letter-spacing: .16em;
             text-transform: uppercase; background: transparent;
-            cursor: none; transition: all .2s;
+            cursor: pointer; transition: all .2s;
           }
           .crt-btn:hover {
             background: rgba(100,180,255,0.1);
             box-shadow: 0 0 18px rgba(100,180,255,0.2);
             color: #fff;
+          }
+
+          @media (max-width: 768px) {
+            .hero-status-bar span:nth-child(2) { display: none; }
           }
         `}</style>
 
@@ -360,7 +383,7 @@ export default function Main() {
           </div>
         </div>
 
-        <div style={{
+        <div className="hero-status-bar" style={{
           position: "absolute", bottom: 0, left: 0, right: 0,
           borderTop: "1px solid rgba(100,160,255,0.1)",
           padding: "10px 8vw",
