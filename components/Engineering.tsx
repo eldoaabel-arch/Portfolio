@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import posthog from "posthog-js";
 
 const ARCH_COMPONENTS = [
   {
@@ -268,7 +269,7 @@ export default function Engineering() {
           <div className="h2">Architecture</div>
 
           {ARCH_COMPONENTS.map((a, i) => (
-            <div key={a.label} className="row" onClick={() => setExpanded(expanded === i ? null : i)}>
+            <div key={a.label} className="row" onClick={() => { const isOpening = expanded !== i; setExpanded(isOpening ? i : null); if (isOpening) posthog.capture("architecture_row_expanded", { component: a.label }); }}>
               <div style={{ fontFamily: "Share Tech Mono", color: "rgba(160,200,255,0.7)" }}>
                 {a.label}
               </div>
@@ -296,7 +297,7 @@ export default function Engineering() {
               <div
                 key={s.label}
                 className="chip"
-                onClick={() => setActiveSnippet(i)}
+                onClick={() => { setActiveSnippet(i); posthog.capture("engineering_snippet_selected", { snippet: s.label }); }}
                 style={{ cursor: "pointer", opacity: activeSnippet === i ? 1 : 0.5 }}
               >
                 {s.label}

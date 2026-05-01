@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import emailjs from "@emailjs/browser";
+import posthog from "posthog-js";
 
 export default function Contact() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -14,7 +15,12 @@ export default function Contact() {
 
   useEffect(() => {
     const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) setVisible(true); },
+      ([e]) => {
+        if (e.isIntersecting) {
+          setVisible(true);
+          posthog.capture("contact_section_viewed");
+        }
+      },
       { threshold: 0.1 }
     );
     if (sectionRef.current) obs.observe(sectionRef.current);
@@ -34,8 +40,13 @@ export default function Contact() {
       );
       setSent(true);
       setForm({ name: "", email: "", budget: "", message: "" });
-    } catch {
+      posthog.capture("contact_form_submitted", {
+        budget: form.budget,
+      });
+    } catch (err) {
       setError(true);
+      posthog.captureException(err);
+      posthog.capture("contact_form_failed");
     } finally {
       setSending(false);
     }
@@ -320,7 +331,7 @@ export default function Contact() {
               }}>
                 &gt; DIRECT
               </p>
-              <a href="mailto:eldoaabel@gmail.com" className="social-link" style={{ fontSize: 13 }}>
+              <a href="mailto:eldoaabel@gmail.com" className="social-link" style={{ fontSize: 13 }} onClick={() => posthog.capture("social_link_clicked", { platform: "email" })}>
                 eldoaabel@gmail.com
               </a>
             </div>
@@ -339,7 +350,7 @@ export default function Contact() {
                   { label: "GitHub",   href: "https://github.com/aabeleldo" },
                   { label: "LinkedIn", href: "https://www.linkedin.com/in/aabel-eldo-0335b6384/" },
                 ].map(s => (
-                  <a key={s.label} href={s.href} target="_blank" rel="noreferrer" className="social-link">
+                  <a key={s.label} href={s.href} target="_blank" rel="noreferrer" className="social-link" onClick={() => posthog.capture("social_link_clicked", { platform: s.label })}>
                     {s.label}
                   </a>
                 ))}

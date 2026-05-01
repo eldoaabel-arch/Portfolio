@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import posthog from "posthog-js";
 
 const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&";
 const scramble = (target: string, progress: number) =>
@@ -380,7 +381,7 @@ export default function Main() {
             <div className="sub3">
               <button
               className="crt-btn"
-              onClick={() => document.getElementById("work")?.scrollIntoView({ behavior: "smooth" })}
+              onClick={() => { posthog.capture("cta_clicked", { label: "view_work" }); document.getElementById("work")?.scrollIntoView({ behavior: "smooth" }); }}
             >
               &gt; ./view_work.sh
             </button>

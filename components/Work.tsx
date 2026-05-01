@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import posthog from "posthog-js";
 
 const PROJECTS = [
   {
@@ -63,7 +64,12 @@ export default function Work() {
 
   useEffect(() => {
     const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) setVisible(true); },
+      ([e]) => {
+        if (e.isIntersecting) {
+          setVisible(true);
+          posthog.capture("work_section_viewed");
+        }
+      },
       { threshold: 0.1 }
     );
     if (sectionRef.current) obs.observe(sectionRef.current);
@@ -307,6 +313,7 @@ export default function Work() {
                   <a href={p.link}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => posthog.capture("project_site_visited", { project: p.title, url: p.link })}
                   style={{
                     display: "inline-block", marginTop: 20,
                     fontFamily: "'Share Tech Mono', monospace",

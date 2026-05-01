@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import posthog from "posthog-js";
 
 const SERVICES = [
   {
@@ -145,7 +146,11 @@ export default function Services() {
               key={s.number}
               className={`svc-card ${open === i ? "open" : ""}`}
               style={{ animationDelay: `${0.1 + i * 0.1}s` }}
-              onClick={() => setOpen(open === i ? null : i)}
+              onClick={() => {
+                const isOpening = open !== i;
+                setOpen(isOpening ? i : null);
+                if (isOpening) posthog.capture("service_card_expanded", { service: s.title });
+              }}
             >
               <div style={{
                 display: "flex",

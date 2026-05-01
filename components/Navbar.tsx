@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import posthog from "posthog-js";
 
 const LINKS = [
   { label: "Home",        href: "#home" },
@@ -72,7 +73,8 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const scrollTo = (href: string, label: string) => {
+  const scrollTo = (href: string, label: string, source: "desktop" | "mobile" = "desktop") => {
+    posthog.capture("nav_link_clicked", { label, source });
     setActive(label);
     setMenuOpen(false);
     const id = href.replace("#", "");
@@ -298,7 +300,7 @@ export default function Navbar() {
               key={label}
               ref={el => { itemRefs.current[label] = el; }}
               className={`nav-btn ${active === label ? "active" : ""}`}
-              onClick={() => scrollTo(href, label)}
+              onClick={() => scrollTo(href, label, "desktop")}
             >
               {label}
             </button>
@@ -309,7 +311,7 @@ export default function Navbar() {
       {/* Desktop: Right CTA */}
       <button
         className={`nav-cta ${visible ? "show" : ""}`}
-        onClick={() => scrollTo("#contact", "Contact")}
+        onClick={() => { posthog.capture("hire_me_clicked", { source: "desktop" }); scrollTo("#contact", "Contact"); }}
       >
         Hire Me
       </button>
@@ -329,14 +331,14 @@ export default function Navbar() {
           <button
             key={label}
             className={`mobile-nav-btn ${active === label ? "active" : ""}`}
-            onClick={() => scrollTo(href, label)}
+            onClick={() => scrollTo(href, label, "mobile")}
           >
             &gt; {label}
           </button>
         ))}
         <button
           className="mobile-hire-btn"
-          onClick={() => scrollTo("#contact", "Contact")}
+          onClick={() => { posthog.capture("hire_me_clicked", { source: "mobile" }); scrollTo("#contact", "Contact", "mobile"); }}
         >
           &gt; Hire Me
         </button>
