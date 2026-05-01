@@ -221,7 +221,7 @@ export default function Navbar() {
           transition: transform .3s, opacity .3s;
         }
         .mobile-menu-btn.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
-        .mobile-menu-btn.open span:nth-child(2) { opacity: 0; }
+        .mobile-menu-btn.open span:nth-child(2) { opacity: 0; width: 0; }
         .mobile-menu-btn.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
 
         /* ── Mobile dropdown menu ── */
