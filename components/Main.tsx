@@ -378,7 +378,12 @@ export default function Main() {
               &gt; NO TEMPLATES. NO BLOAT. JUST CLEAN BUILDS.
             </p>
             <div className="sub3">
-              <button className="crt-btn">&gt; ./view_work.sh</button>
+              <button
+              className="crt-btn"
+              onClick={() => document.getElementById("work")?.scrollIntoView({ behavior: "smooth" })}
+            >
+              &gt; ./view_work.sh
+            </button>
             </div>
           </div>
         </div>
